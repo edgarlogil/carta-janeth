@@ -66,7 +66,6 @@
 </head>
 <body>
 
-<!-- 🎵 MUSICA -->
 <audio id="bgMusic" src="musica.mp3" loop></audio>
 
 <div id="phraseBox"></div>
@@ -83,7 +82,7 @@ const canvas = document.getElementById('starCanvas');
 const ctx = canvas.getContext('2d');
 let W, H, dpr;
 
-/* ===== MUSICA (AGREGADO) ===== */
+/* ===== MUSICA ===== */
 const music = document.getElementById("bgMusic");
 let musicPlaying = false;
 
@@ -99,15 +98,20 @@ document.getElementById("musicBtn").onclick = () => {
         document.getElementById("musicBtn").innerText = "Música ▶";
     }
 };
-/* ============================ */
+/* ================== */
 
+/* 🔧 ÚNICO CAMBIO AQUÍ */
 function resize() {
     W = window.innerWidth;
     H = window.innerHeight;
-    dpr = window.devicePixelRatio || 1;
+
+    dpr = Math.min(window.devicePixelRatio || 1, 2); // 👈 LIMITADO
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.scale(dpr, dpr);
+
     init();
 }
 
@@ -166,7 +170,7 @@ function normalize(pts) {
 }
 
 const shapes = [
-    () => { // Corazón
+    () => {
         let pts = [];
         for(let i=0; i<300; i++) {
             let t = (i/300) * Math.PI * 2;
@@ -174,7 +178,7 @@ const shapes = [
         }
         return normalize(pts);
     },
-    () => { // BAÑERA
+    () => {
         let pts = [];
         for(let a=0; a<6.28; a+=0.4) pts.push({x: Math.cos(a)*4, y: Math.sin(a)*1.5 - 12});
         for(let i=0; i<80; i++) pts.push({x: rand(-4, 4), y: rand(-11, 4)});
@@ -184,13 +188,13 @@ const shapes = [
         for(let x=1; x<4; x+=0.5) pts.push({x, y:6});
         return normalize(pts);
     },
-    () => { // Reloj
+    () => {
         let pts = [];
         for(let a=0; a<6.28; a+=0.1) pts.push({x: Math.cos(a)*10, y: Math.sin(a)*10});
         for(let i=0; i<15; i++) pts.push({x: 0, y: -i*0.6}, {x: i*0.4, y: 0});
         return normalize(pts);
     },
-    () => { // Cama
+    () => {
         let pts = [];
         for(let x=-12; x<=12; x+=1.2) { pts.push({x, y:4}, {x, y:0}); }
         for(let y=0; y<=4; y+=1) { pts.push({x:-12, y}, {x:12, y}); }
@@ -199,7 +203,7 @@ const shapes = [
         for(let x=-3; x<=1; x+=0.5) for(let y=-1; y>=-3; y-=1) pts.push({x, y});
         return normalize(pts);
     },
-    () => { // Plato
+    () => {
         let pts = [];
         for(let a=0; a<6.28; a+=0.1) pts.push({x: Math.cos(a)*10, y: Math.sin(a)*10});
         for(let a=0; a<6.28; a+=0.25) pts.push({x: Math.cos(a)*7, y: Math.sin(a)*7});
@@ -332,3 +336,4 @@ document.getElementById('pauseBtn').onclick = e => {
 </script>
 </body>
 </html>
+
