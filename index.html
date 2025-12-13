@@ -4,66 +4,75 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Promesas Estrelladas: E & J</title>
+
 <style>
-    :root { --gold: #FFD700; }
-    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; }
-    
-    body {
-        background: radial-gradient(circle at 50% 20%, #07071a 0%, #000 70%);
-        color: white;
-        font-family: 'Segoe UI', Arial, sans-serif;
-    }
+:root { --gold: #FFD700; }
 
-    #phraseBox {
-        position: absolute;
-        top: 40px;
-        width: 100%;
-        text-align: center;
-        font-size: 26px;
-        font-weight: bold;
-        color: var(--gold);
-        text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-        z-index: 20;
-        padding: 0 10px;
-        box-sizing: border-box;
-    }
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+}
 
-    #controls {
-        position: fixed;
-        bottom: 20px;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        z-index: 30;
-    }
+body {
+    background: radial-gradient(circle at 50% 20%, #07071a 0%, #000 70%);
+    color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
 
-    button {
-        padding: 10px 25px;
-        font-size: 15px;
-        border: 1px solid var(--gold);
-        cursor: pointer;
-        background: rgba(0, 0, 0, 0.7);
-        color: var(--gold);
-        border-radius: 10px;
-        font-weight: bold;
-        transition: 0.3s;
-    }
+#phraseBox {
+    position: absolute;
+    top: 40px;
+    width: 100%;
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--gold);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    z-index: 20;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
 
-    button:hover {
-        background: var(--gold);
-        color: black;
-    }
+#controls {
+    position: fixed;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    z-index: 30;
+}
 
-    canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: block;
-        z-index: 1;
-    }
+button {
+    padding: 10px 25px;
+    font-size: 15px;
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--gold);
+    border-radius: 10px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: var(--gold);
+    color: black;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    z-index: 1;
+}
 </style>
 </head>
+
 <body>
 
 <audio id="bgMusic" src="musica.mp3" loop></audio>
@@ -80,6 +89,7 @@
 <script>
 const canvas = document.getElementById('starCanvas');
 const ctx = canvas.getContext('2d');
+
 let W, H, dpr;
 
 /* ===== MUSICA ===== */
@@ -100,16 +110,15 @@ document.getElementById("musicBtn").onclick = () => {
 };
 /* ================== */
 
-/* 🔧 ÚNICO CAMBIO AQUÍ */
 function resize() {
     W = window.innerWidth;
     H = window.innerHeight;
 
-    dpr = Math.min(window.devicePixelRatio || 1, 2); // 👈 LIMITADO
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = W * dpr;
     canvas.height = H * dpr;
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
     init();
@@ -117,9 +126,15 @@ function resize() {
 
 window.addEventListener('resize', resize);
 
-let skyStars = [], constellationStars = [], flowers = [], particles = [];
+let skyStars = [];
+let constellationStars = [];
+let flowers = [];
+let particles = [];
 let initialStars = [];
-let currentIndex = 0, isPaused = false, exploded = false;
+
+let currentIndex = 0;
+let isPaused = false;
+let exploded = false;
 
 const phrases = [
     "no nací para lo casual,",
@@ -129,89 +144,132 @@ const phrases = [
     "y te dejaré el último bocado incluso si es mi comida favorita."
 ];
 
-function rand(min, max) { return Math.random() * (max - min) + min; }
+function rand(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
 function init() {
     skyStars = [];
-    for(let i=0; i<300; i++) {
-        skyStars.push({ x: rand(0, W), y: rand(0, H), r: rand(0.5, 1.5), s: rand(0.01, 0.03), p: rand(0, Math.PI*2) });
+    for (let i = 0; i < 300; i++) {
+        skyStars.push({
+            x: rand(0, W),
+            y: rand(0, H),
+            r: rand(0.5, 1.5),
+            s: rand(0.01, 0.03),
+            p: rand(0, Math.PI * 2)
+        });
     }
 
     flowers = [];
     const fCount = 14;
-    for(let i=0; i<fCount; i++) {
-        const cx = (i+1) * (W / (fCount + 1));
+    for (let i = 0; i < fCount; i++) {
+        const cx = (i + 1) * (W / (fCount + 1));
         const cy = H - 120;
         const petals = [];
         const baseHue = rand(0, 360);
-        for(let p=0; p<6; p++) petals.push({ ang: (Math.PI*2/6)*p, hue: (baseHue + p*20)%360 });
-        flowers.push({cx, cy, petals});
+        for (let p = 0; p < 6; p++) {
+            petals.push({
+                ang: (Math.PI * 2 / 6) * p,
+                hue: (baseHue + p * 20) % 360
+            });
+        }
+        flowers.push({ cx, cy, petals });
     }
 
     constellationStars = [];
-    for(let i=0; i<400; i++) { 
-        constellationStars.push({ x: W/2, y: H/2, tx: W/2, ty: H/2, size: rand(1.2, 2.2) });
+    for (let i = 0; i < 400; i++) {
+        constellationStars.push({
+            x: W / 2,
+            y: H / 2,
+            tx: W / 2,
+            ty: H / 2,
+            size: rand(1.2, 2.2)
+        });
     }
     setShape(0);
 
     initialStars = [
-        { x: -100, y: H/2, tx: W/2 - 30, ty: H/2, char: 'E', trail: [] },
-        { x: W + 100, y: H/2, tx: W/2 + 30, ty: H/2, char: 'J', trail: [] }
+        { x: -100, y: H / 2, tx: W / 2 - 30, ty: H / 2, char: 'E', trail: [] },
+        { x: W + 100, y: H / 2, tx: W / 2 + 30, ty: H / 2, char: 'J', trail: [] }
     ];
+
     exploded = false;
     particles = [];
 }
 
+/* ========= FIX CELULAR (ÚNICO CAMBIO REAL) ========= */
 function normalize(pts) {
-    let mx=0, my=0; pts.forEach(p => { mx+=p.x; my+=p.y; });
-    mx /= pts.length; my /= pts.length;
-    let scale = Math.min(W, H) / 45; 
-    return pts.map(p => ({ x: (p.x-mx)*scale + W/2, y: (p.y-my)*scale + H/2 + 10 }));
+    let mx = 0, my = 0;
+    pts.forEach(p => { mx += p.x; my += p.y; });
+    mx /= pts.length;
+    my /= pts.length;
+
+    const isMobile = window.innerWidth < 768;
+
+    const scale = isMobile
+        ? W / 28
+        : Math.min(W, H) / 45;
+
+    const offsetY = isMobile
+        ? -H * 0.15
+        : 10;
+
+    return pts.map(p => ({
+        x: (p.x - mx) * scale + W / 2,
+        y: (p.y - my) * scale + H / 2 + offsetY
+    }));
 }
+/* ================================================ */
 
 const shapes = [
     () => {
         let pts = [];
-        for(let i=0; i<300; i++) {
-            let t = (i/300) * Math.PI * 2;
-            pts.push({ x: 16*Math.pow(Math.sin(t),3), y: -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)) });
+        for (let i = 0; i < 300; i++) {
+            let t = (i / 300) * Math.PI * 2;
+            pts.push({
+                x: 16 * Math.pow(Math.sin(t), 3),
+                y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
+            });
         }
         return normalize(pts);
     },
     () => {
         let pts = [];
-        for(let a=0; a<6.28; a+=0.4) pts.push({x: Math.cos(a)*4, y: Math.sin(a)*1.5 - 12});
-        for(let i=0; i<80; i++) pts.push({x: rand(-4, 4), y: rand(-11, 4)});
-        for(let a=0; a<6.28; a+=0.6) pts.push({x: Math.cos(a)*1.5 - 2, y: Math.sin(a)*1.5 + 4});
-        for(let x=-4; x<-1; x+=0.5) pts.push({x, y:6});
-        for(let a=0; a<6.28; a+=0.6) pts.push({x: Math.cos(a)*1.5 + 2, y: Math.sin(a)*1.5 + 4});
-        for(let x=1; x<4; x+=0.5) pts.push({x, y:6});
+        for (let a = 0; a < 6.28; a += 0.4) pts.push({ x: Math.cos(a) * 4, y: Math.sin(a) * 1.5 - 12 });
+        for (let i = 0; i < 80; i++) pts.push({ x: rand(-4, 4), y: rand(-11, 4) });
+        for (let a = 0; a < 6.28; a += 0.6) pts.push({ x: Math.cos(a) * 1.5 - 2, y: Math.sin(a) * 1.5 + 4 });
+        for (let x = -4; x < -1; x += 0.5) pts.push({ x, y: 6 });
+        for (let a = 0; a < 6.28; a += 0.6) pts.push({ x: Math.cos(a) * 1.5 + 2, y: Math.sin(a) * 1.5 + 4 });
+        for (let x = 1; x < 4; x += 0.5) pts.push({ x, y: 6 });
         return normalize(pts);
     },
     () => {
         let pts = [];
-        for(let a=0; a<6.28; a+=0.1) pts.push({x: Math.cos(a)*10, y: Math.sin(a)*10});
-        for(let i=0; i<15; i++) pts.push({x: 0, y: -i*0.6}, {x: i*0.4, y: 0});
+        for (let a = 0; a < 6.28; a += 0.1) pts.push({ x: Math.cos(a) * 10, y: Math.sin(a) * 10 });
+        for (let i = 0; i < 15; i++) pts.push({ x: 0, y: -i * 0.6 }, { x: i * 0.4, y: 0 });
         return normalize(pts);
     },
     () => {
         let pts = [];
-        for(let x=-12; x<=12; x+=1.2) { pts.push({x, y:4}, {x, y:0}); }
-        for(let y=0; y<=4; y+=1) { pts.push({x:-12, y}, {x:12, y}); }
-        for(let y=0; y>=-8; y-=1) pts.push({x:-12, y}, {x:-10, y});
-        for(let x=-9; x<=-5; x+=0.5) for(let y=-1; y>=-3; y-=1) pts.push({x, y});
-        for(let x=-3; x<=1; x+=0.5) for(let y=-1; y>=-3; y-=1) pts.push({x, y});
+        for (let x = -12; x <= 12; x += 1.2) { pts.push({ x, y: 4 }, { x, y: 0 }); }
+        for (let y = 0; y <= 4; y += 1) { pts.push({ x: -12, y }, { x: 12, y }); }
+        for (let y = 0; y >= -8; y -= 1) pts.push({ x: -12, y }, { x: -10, y });
+        for (let x = -9; x <= -5; x += 0.5) for (let y = -1; y >= -3; y -= 1) pts.push({ x, y });
+        for (let x = -3; x <= 1; x += 0.5) for (let y = -1; y >= -3; y -= 1) pts.push({ x, y });
         return normalize(pts);
     },
     () => {
         let pts = [];
-        for(let a=0; a<6.28; a+=0.1) pts.push({x: Math.cos(a)*10, y: Math.sin(a)*10});
-        for(let a=0; a<6.28; a+=0.25) pts.push({x: Math.cos(a)*7, y: Math.sin(a)*7});
-        for(let i=0; i<50; i++) {
-            let t = (i/50) * Math.PI * 2;
-            pts.push({ x: 0.2*(16*Math.pow(Math.sin(t),3)), y: 0.2*(-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))) });
+        for (let a = 0; a < 6.28; a += 0.1) pts.push({ x: Math.cos(a) * 10, y: Math.sin(a) * 10 });
+        for (let a = 0; a < 6.28; a += 0.25) pts.push({ x: Math.cos(a) * 7, y: Math.sin(a) * 7 });
+        for (let i = 0; i < 50; i++) {
+            let t = (i / 50) * Math.PI * 2;
+            pts.push({
+                x: 0.2 * (16 * Math.pow(Math.sin(t), 3)),
+                y: 0.2 * (-(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)))
+            });
         }
-        for(let j=-6; j<6; j+=1) pts.push({x:-12, y:j}, {x:12, y:j});
+        for (let j = -6; j < 6; j += 1) pts.push({ x: -12, y: j }, { x: 12, y: j });
         return normalize(pts);
     }
 ];
@@ -226,12 +284,13 @@ function setShape(idx) {
 }
 
 function createExplosion(x, y) {
-    for(let i=0; i<60; i++) {
+    for (let i = 0; i < 60; i++) {
         particles.push({
             x, y,
-            vx: rand(-5,5), vy: rand(-5,5),
+            vx: rand(-5, 5),
+            vy: rand(-5, 5),
             life: 1,
-            color: `hsla(${rand(45,55)},100%,70%,1)`
+            color: `hsla(${rand(45, 55)},100%,70%,1)`
         });
     }
 }
@@ -242,77 +301,91 @@ function typeWriter(text) {
     let i = 0;
     clearInterval(window.typeTimer);
     window.typeTimer = setInterval(() => {
-        if(!isPaused) {
+        if (!isPaused) {
             box.innerHTML += text.charAt(i);
             i++;
-            if(i >= text.length) clearInterval(window.typeTimer);
+            if (i >= text.length) clearInterval(window.typeTimer);
         }
     }, 50);
 }
 
 function animate() {
-    if(!isPaused) {
-        ctx.clearRect(0,0,W,H);
+    if (!isPaused) {
+        ctx.clearRect(0, 0, W, H);
 
         skyStars.forEach(s => {
-            const op = (Math.sin(Date.now()*s.s + s.p)+1)/2;
-            ctx.fillStyle = `rgba(255,255,255,${0.2+op*0.5})`;
-            ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+            const op = (Math.sin(Date.now() * s.s + s.p) + 1) / 2;
+            ctx.fillStyle = `rgba(255,255,255,${0.2 + op * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
         });
 
         constellationStars.forEach(s => {
-            s.x += (s.tx-s.x)*0.06;
-            s.y += (s.ty-s.y)*0.06;
-            ctx.fillStyle="white";
-            ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fill();
+            s.x += (s.tx - s.x) * 0.06;
+            s.y += (s.ty - s.y) * 0.06;
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
         });
 
-        if(!exploded) {
+        if (!exploded) {
             let close = 0;
             initialStars.forEach(s => {
-                s.trail.push({x:s.x,y:s.y});
-                if(s.trail.length>25) s.trail.shift();
-                s.x += (s.tx-s.x)*0.02;
-                s.y += (s.ty-s.y)*0.02;
+                s.trail.push({ x: s.x, y: s.y });
+                if (s.trail.length > 25) s.trail.shift();
 
-                ctx.strokeStyle="rgba(255,215,0,0.3)";
-                ctx.lineWidth=2;
+                s.x += (s.tx - s.x) * 0.02;
+                s.y += (s.ty - s.y) * 0.02;
+
+                ctx.strokeStyle = "rgba(255,215,0,0.3)";
+                ctx.lineWidth = 2;
                 ctx.beginPath();
-                s.trail.forEach(p=>ctx.lineTo(p.x,p.y));
+                s.trail.forEach(p => ctx.lineTo(p.x, p.y));
                 ctx.stroke();
 
-                ctx.fillStyle="white";
-                ctx.font="bold 24px Arial";
-                ctx.shadowBlur=10;
-                ctx.shadowColor="gold";
-                ctx.fillText(s.char,s.x-8,s.y+8);
-                ctx.shadowBlur=0;
+                ctx.fillStyle = "white";
+                ctx.font = "bold 24px Arial";
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "gold";
+                ctx.fillText(s.char, s.x - 8, s.y + 8);
+                ctx.shadowBlur = 0;
 
-                if(Math.abs(s.x-s.tx)<5) close++;
+                if (Math.abs(s.x - s.tx) < 5) close++;
             });
 
-            if(close===2){
-                exploded=true;
-                createExplosion(W/2,H/2);
+            if (close === 2) {
+                exploded = true;
+                createExplosion(W / 2, H / 2);
             }
         }
 
-        particles.forEach((p,i)=>{
-            p.x+=p.vx; p.y+=p.vy; p.life-=0.02;
-            ctx.fillStyle=p.color.replace('1)',p.life+')');
-            ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fill();
-            if(p.life<=0) particles.splice(i,1);
+        particles.forEach((p, i) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.02;
+            ctx.fillStyle = p.color.replace('1)', p.life + ')');
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+            ctx.fill();
+            if (p.life <= 0) particles.splice(i, 1);
         });
 
-        const now = Date.now()*0.002;
-        flowers.forEach(f=>{
-            ctx.fillStyle="#FFD700";
-            ctx.beginPath(); ctx.arc(f.cx,f.cy+Math.sin(now+f.cx)*3,5,0,Math.PI*2); ctx.fill();
-            f.petals.forEach(p=>{
-                const px=f.cx+Math.cos(p.ang)*11;
-                const py=f.cy+Math.sin(p.ang)*11+Math.sin(now*2+f.cx)*3;
-                ctx.fillStyle=`hsla(${p.hue},80%,70%,0.8)`;
-                ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2); ctx.fill();
+        const now = Date.now() * 0.002;
+        flowers.forEach(f => {
+            ctx.fillStyle = "#FFD700";
+            ctx.beginPath();
+            ctx.arc(f.cx, f.cy + Math.sin(now + f.cx) * 3, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            f.petals.forEach(p => {
+                const px = f.cx + Math.cos(p.ang) * 11;
+                const py = f.cy + Math.sin(p.ang) * 11 + Math.sin(now * 2 + f.cx) * 3;
+                ctx.fillStyle = `hsla(${p.hue},80%,70%,0.8)`;
+                ctx.beginPath();
+                ctx.arc(px, py, 4, 0, Math.PI * 2);
+                ctx.fill();
             });
         });
     }
@@ -334,6 +407,6 @@ document.getElementById('pauseBtn').onclick = e => {
     e.target.innerText = isPaused ? "Reanudar" : "Pausar";
 };
 </script>
+
 </body>
 </html>
-
