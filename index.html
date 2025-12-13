@@ -1,257 +1,334 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Carta para Janeth</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Promesas Estrelladas: E & J</title>
 <style>
+    :root { --gold: #FFD700; }
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; }
+    
     body {
-        margin: 0;
-        height: 100vh;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: "Segoe UI", sans-serif;
-        background: radial-gradient(circle at center, #1a1a2e, #000);
-        position: relative;
+        background: radial-gradient(circle at 50% 20%, #07071a 0%, #000 70%);
+        color: white;
+        font-family: 'Segoe UI', Arial, sans-serif;
     }
 
-    /* Estrellas grandes */
-    .estrella {
+    #phraseBox {
         position: absolute;
-        width: 5px;
-        height: 5px;
-        background: white;
-        border-radius: 50%;
-        opacity: 0;
-        box-shadow: 0 0 10px white, 0 0 20px white;
-        animation: brillar 2.5s infinite ease-in-out;
-    }
-
-    @keyframes brillar {
-        0%,100% { opacity: 0.3; transform: scale(0.7); }
-        50% { opacity: 1; transform: scale(1.8); }
-    }
-
-    /* Carta */
-    .carta {
-        width: 380px;
-        height: 270px;
-        background: #fff8f4;
-        position: relative;
-        border-radius: 12px;
-        box-shadow: 0 25px 60px rgba(255, 255, 255, 0.4);
-        transform-style: preserve-3d;
-        cursor: pointer;
-        transition: transform 1.2s;
-        z-index: 50;
-    }
-
-    .carta.abierta {
-        transform: rotateX(180deg);
-    }
-
-    .tapa {
-        position: absolute;
+        top: 40px;
         width: 100%;
-        height: 100%;
-        background: #ffdde9;
-        border-radius: 12px;
-        transform-origin: top;
-        backface-visibility: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 3rem;
-        transition: transform 1.2s;
-    }
-
-    .carta.abierta .tapa {
-        transform: rotateX(-180deg);
-    }
-
-    .interior {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: #ffffffdd;
-        border-radius: 12px;
-        transform: rotateX(180deg);
-        backface-visibility: hidden;
-        padding: 25px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .texto {
-        font-family: "Brush Script MT", "Lucida Handwriting", cursive;
-        font-size: 1.8rem;
-        color: #ff1e6e;
-        text-shadow: 0 0 8px #ff82b5;
-        white-space: pre-wrap;
-        border-right: 3px solid #ff1e6e;
-        overflow: hidden;
-    }
-
-    /* Corazones flotando */
-    .corazon-bg {
-        position: absolute;
-        font-size: 2.5rem;
-        color: rgba(255,255,255,0.85);
-        animation: flotarCorazon linear infinite;
-        pointer-events: none;
-        z-index: 5;
-    }
-
-    @keyframes flotarCorazon {
-        0% { transform: translateY(110vh) scale(0.6); opacity: 0; }
-        20% { opacity: 1; }
-        100% { transform: translateY(-10vh) scale(1.3); opacity: 0; }
-    }
-
-    /* Flores */
-    .flores {
-        position: absolute;
-        bottom: -5px;
-        width: 100%;
-        height: 150px;
-        display: flex;
-        justify-content: space-around;
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        color: var(--gold);
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
         z-index: 20;
+        padding: 0 10px;
+        box-sizing: border-box;
     }
 
-    .flor {
-        width: 40px;
-        height: 40px;
-        animation: moverFlor 3s infinite alternate ease-in-out;
-        transform-origin: bottom center;
-        position: relative;
+    #controls {
+        position: fixed;
+        bottom: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        z-index: 30;
     }
 
-    @keyframes moverFlor {
-        0% { transform: translateY(0px) rotate(-5deg); }
-        100% { transform: translateY(-15px) rotate(5deg); }
+    button {
+        padding: 10px 25px;
+        font-size: 15px;
+        border: 1px solid var(--gold);
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.7);
+        color: var(--gold);
+        border-radius: 10px;
+        font-weight: bold;
+        transition: 0.3s;
     }
 
-    .petalo {
-        width: 18px;
-        height: 18px;
-        background: #ff9ecb;
-        border-radius: 50%;
-        position: absolute;
+    button:hover {
+        background: var(--gold);
+        color: black;
     }
 
-    .petalo:nth-child(1) { top: 0; left: 11px; }
-    .petalo:nth-child(2) { top: 11px; left: 0; }
-    .petalo:nth-child(3) { top: 11px; right: 0; }
-    .petalo:nth-child(4) { bottom: 0; left: 11px; }
-
-    .centro {
-        width: 14px;
-        height: 14px;
-        background: yellow;
-        border-radius: 50%;
-        position: absolute;
-        top: 13px;
-        left: 13px;
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: block;
+        z-index: 1;
     }
 </style>
 </head>
-
 <body>
 
-<!-- AUDIO CORRECTO -->
-<audio id="musica" src="musica.mp3"></audio>
+<!-- 🎵 MUSICA -->
+<audio id="bgMusic" src="musica.mp3" loop></audio>
+
+<div id="phraseBox"></div>
+<canvas id="starCanvas"></canvas>
+
+<div id="controls">
+    <button id="pauseBtn">Pausar</button>
+    <button id="nextBtn">Siguiente</button>
+    <button id="musicBtn">Música ▶</button>
+</div>
 
 <script>
-    /* Estrellas */
-    for (let i = 0; i < 180; i++) {
-        const e = document.createElement("div");
-        e.className = "estrella";
-        e.style.left = Math.random() * 100 + "vw";
-        e.style.top = Math.random() * 100 + "vh";
-        e.style.animationDuration = (1.5 + Math.random() * 3) + "s";
-        document.body.appendChild(e);
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, dpr;
+
+/* ===== MUSICA (AGREGADO) ===== */
+const music = document.getElementById("bgMusic");
+let musicPlaying = false;
+
+document.getElementById("musicBtn").onclick = () => {
+    if (!musicPlaying) {
+        music.volume = 0.5;
+        music.play();
+        musicPlaying = true;
+        document.getElementById("musicBtn").innerText = "Música ⏸";
+    } else {
+        music.pause();
+        musicPlaying = false;
+        document.getElementById("musicBtn").innerText = "Música ▶";
     }
-</script>
+};
+/* ============================ */
 
-<!-- Carta -->
-<div class="carta" id="carta">
-    <div class="tapa">💌</div>
-    <div class="interior">
-        <div id="mensaje" class="texto"></div>
-    </div>
-</div>
+function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    dpr = window.devicePixelRatio || 1;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    init();
+}
 
-<!-- Flores -->
-<div class="flores">
-    <div class="flor"><div class="petalo"></div><div class="petalo"></div><div class="petalo"></div><div class="petalo"></div><div class="centro"></div></div>
-    <div class="flor"><div class="petalo"></div><div class="petalo"></div><div class="petalo"></div><div class="petalo"></div><div class="centro"></div></div>
-    <div class="flor"><div class="petalo"></div><div class="petalo"></div><div class="petalo"></div><div class="petalo"></div><div class="centro"></div></div>
-</div>
+window.addEventListener('resize', resize);
 
-<script>
-    const carta = document.getElementById("carta");
-    const mensaje = document.getElementById("mensaje");
-    const musica = document.getElementById("musica");
+let skyStars = [], constellationStars = [], flowers = [], particles = [];
+let initialStars = [];
+let currentIndex = 0, isPaused = false, exploded = false;
 
-    const texto = 
-`💖 Te amo Janeth 💖
+const phrases = [
+    "no nací para lo casual,",
+    "te bañaré si un día no pudieras hacerlo,",
+    "pondré una alarma para recordarte de tomar tus medicinas,",
+    "te llevaré el desayuno a la cama cuando no tengas ganas de levantarte,",
+    "y te dejaré el último bocado incluso si es mi comida favorita."
+];
 
-Eres lo más hermoso
-que tengo en la vida.
+function rand(min, max) { return Math.random() * (max - min) + min; }
 
-Siempre tú, siempre nosotros. 
-🌸`;
+function init() {
+    skyStars = [];
+    for(let i=0; i<300; i++) {
+        skyStars.push({ x: rand(0, W), y: rand(0, H), r: rand(0.5, 1.5), s: rand(0.01, 0.03), p: rand(0, Math.PI*2) });
+    }
 
-    let musicaIniciada = false;
+    flowers = [];
+    const fCount = 14;
+    for(let i=0; i<fCount; i++) {
+        const cx = (i+1) * (W / (fCount + 1));
+        const cy = H - 120;
+        const petals = [];
+        const baseHue = rand(0, 360);
+        for(let p=0; p<6; p++) petals.push({ ang: (Math.PI*2/6)*p, hue: (baseHue + p*20)%360 });
+        flowers.push({cx, cy, petals});
+    }
 
-    carta.addEventListener("click", () => {
-        carta.classList.toggle("abierta");
+    constellationStars = [];
+    for(let i=0; i<400; i++) { 
+        constellationStars.push({ x: W/2, y: H/2, tx: W/2, ty: H/2, size: rand(1.2, 2.2) });
+    }
+    setShape(0);
 
-        if (!musicaIniciada) {
-            musica.play().catch(()=>{});
-            musicaIniciada = true;
+    initialStars = [
+        { x: -100, y: H/2, tx: W/2 - 30, ty: H/2, char: 'E', trail: [] },
+        { x: W + 100, y: H/2, tx: W/2 + 30, ty: H/2, char: 'J', trail: [] }
+    ];
+    exploded = false;
+    particles = [];
+}
+
+function normalize(pts) {
+    let mx=0, my=0; pts.forEach(p => { mx+=p.x; my+=p.y; });
+    mx /= pts.length; my /= pts.length;
+    let scale = Math.min(W, H) / 45; 
+    return pts.map(p => ({ x: (p.x-mx)*scale + W/2, y: (p.y-my)*scale + H/2 + 10 }));
+}
+
+const shapes = [
+    () => { // Corazón
+        let pts = [];
+        for(let i=0; i<300; i++) {
+            let t = (i/300) * Math.PI * 2;
+            pts.push({ x: 16*Math.pow(Math.sin(t),3), y: -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)) });
         }
-
-        if (carta.classList.contains("abierta")) {
-            mensaje.innerText = "";
-            mensaje.style.borderRight = "3px solid #ff1e6e";
-            escribirTexto();
+        return normalize(pts);
+    },
+    () => { // BAÑERA
+        let pts = [];
+        for(let a=0; a<6.28; a+=0.4) pts.push({x: Math.cos(a)*4, y: Math.sin(a)*1.5 - 12});
+        for(let i=0; i<80; i++) pts.push({x: rand(-4, 4), y: rand(-11, 4)});
+        for(let a=0; a<6.28; a+=0.6) pts.push({x: Math.cos(a)*1.5 - 2, y: Math.sin(a)*1.5 + 4});
+        for(let x=-4; x<-1; x+=0.5) pts.push({x, y:6});
+        for(let a=0; a<6.28; a+=0.6) pts.push({x: Math.cos(a)*1.5 + 2, y: Math.sin(a)*1.5 + 4});
+        for(let x=1; x<4; x+=0.5) pts.push({x, y:6});
+        return normalize(pts);
+    },
+    () => { // Reloj
+        let pts = [];
+        for(let a=0; a<6.28; a+=0.1) pts.push({x: Math.cos(a)*10, y: Math.sin(a)*10});
+        for(let i=0; i<15; i++) pts.push({x: 0, y: -i*0.6}, {x: i*0.4, y: 0});
+        return normalize(pts);
+    },
+    () => { // Cama
+        let pts = [];
+        for(let x=-12; x<=12; x+=1.2) { pts.push({x, y:4}, {x, y:0}); }
+        for(let y=0; y<=4; y+=1) { pts.push({x:-12, y}, {x:12, y}); }
+        for(let y=0; y>=-8; y-=1) pts.push({x:-12, y}, {x:-10, y});
+        for(let x=-9; x<=-5; x+=0.5) for(let y=-1; y>=-3; y-=1) pts.push({x, y});
+        for(let x=-3; x<=1; x+=0.5) for(let y=-1; y>=-3; y-=1) pts.push({x, y});
+        return normalize(pts);
+    },
+    () => { // Plato
+        let pts = [];
+        for(let a=0; a<6.28; a+=0.1) pts.push({x: Math.cos(a)*10, y: Math.sin(a)*10});
+        for(let a=0; a<6.28; a+=0.25) pts.push({x: Math.cos(a)*7, y: Math.sin(a)*7});
+        for(let i=0; i<50; i++) {
+            let t = (i/50) * Math.PI * 2;
+            pts.push({ x: 0.2*(16*Math.pow(Math.sin(t),3)), y: 0.2*(-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))) });
         }
+        for(let j=-6; j<6; j+=1) pts.push({x:-12, y:j}, {x:12, y:j});
+        return normalize(pts);
+    }
+];
+
+function setShape(idx) {
+    const pts = shapes[idx]();
+    constellationStars.forEach((s, i) => {
+        const p = pts[i % pts.length];
+        s.tx = p.x;
+        s.ty = p.y;
     });
+}
 
-    function escribirTexto() {
-        let i = 0;
-        const velocidad = 70;
+function createExplosion(x, y) {
+    for(let i=0; i<60; i++) {
+        particles.push({
+            x, y,
+            vx: rand(-5,5), vy: rand(-5,5),
+            life: 1,
+            color: `hsla(${rand(45,55)},100%,70%,1)`
+        });
+    }
+}
 
-        const intervalo = setInterval(() => {
-            mensaje.innerText = texto.slice(0, i);
+function typeWriter(text) {
+    const box = document.getElementById('phraseBox');
+    box.innerHTML = "";
+    let i = 0;
+    clearInterval(window.typeTimer);
+    window.typeTimer = setInterval(() => {
+        if(!isPaused) {
+            box.innerHTML += text.charAt(i);
             i++;
+            if(i >= text.length) clearInterval(window.typeTimer);
+        }
+    }, 50);
+}
 
-            if (i > texto.length) {
-                clearInterval(intervalo);
-                mensaje.style.borderRight = "none";
+function animate() {
+    if(!isPaused) {
+        ctx.clearRect(0,0,W,H);
+
+        skyStars.forEach(s => {
+            const op = (Math.sin(Date.now()*s.s + s.p)+1)/2;
+            ctx.fillStyle = `rgba(255,255,255,${0.2+op*0.5})`;
+            ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+        });
+
+        constellationStars.forEach(s => {
+            s.x += (s.tx-s.x)*0.06;
+            s.y += (s.ty-s.y)*0.06;
+            ctx.fillStyle="white";
+            ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fill();
+        });
+
+        if(!exploded) {
+            let close = 0;
+            initialStars.forEach(s => {
+                s.trail.push({x:s.x,y:s.y});
+                if(s.trail.length>25) s.trail.shift();
+                s.x += (s.tx-s.x)*0.02;
+                s.y += (s.ty-s.y)*0.02;
+
+                ctx.strokeStyle="rgba(255,215,0,0.3)";
+                ctx.lineWidth=2;
+                ctx.beginPath();
+                s.trail.forEach(p=>ctx.lineTo(p.x,p.y));
+                ctx.stroke();
+
+                ctx.fillStyle="white";
+                ctx.font="bold 24px Arial";
+                ctx.shadowBlur=10;
+                ctx.shadowColor="gold";
+                ctx.fillText(s.char,s.x-8,s.y+8);
+                ctx.shadowBlur=0;
+
+                if(Math.abs(s.x-s.tx)<5) close++;
+            });
+
+            if(close===2){
+                exploded=true;
+                createExplosion(W/2,H/2);
             }
-        }, velocidad);
+        }
+
+        particles.forEach((p,i)=>{
+            p.x+=p.vx; p.y+=p.vy; p.life-=0.02;
+            ctx.fillStyle=p.color.replace('1)',p.life+')');
+            ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fill();
+            if(p.life<=0) particles.splice(i,1);
+        });
+
+        const now = Date.now()*0.002;
+        flowers.forEach(f=>{
+            ctx.fillStyle="#FFD700";
+            ctx.beginPath(); ctx.arc(f.cx,f.cy+Math.sin(now+f.cx)*3,5,0,Math.PI*2); ctx.fill();
+            f.petals.forEach(p=>{
+                const px=f.cx+Math.cos(p.ang)*11;
+                const py=f.cy+Math.sin(p.ang)*11+Math.sin(now*2+f.cx)*3;
+                ctx.fillStyle=`hsla(${p.hue},80%,70%,0.8)`;
+                ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2); ctx.fill();
+            });
+        });
     }
+    requestAnimationFrame(animate);
+}
 
-    function crearCorazon() {
-        const c = document.createElement("div");
-        c.className = "corazon-bg";
-        c.innerText = "❤️";
+resize();
+typeWriter(phrases[0]);
+animate();
 
-        c.style.left = Math.random() * 100 + "vw";
-        c.style.animationDuration = (4 + Math.random() * 6) + "s";
+document.getElementById('nextBtn').onclick = () => {
+    currentIndex = (currentIndex + 1) % phrases.length;
+    setShape(currentIndex);
+    typeWriter(phrases[currentIndex]);
+};
 
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 12000);
-    }
-
-    setInterval(crearCorazon, 300);
+document.getElementById('pauseBtn').onclick = e => {
+    isPaused = !isPaused;
+    e.target.innerText = isPaused ? "Reanudar" : "Pausar";
+};
 </script>
-
 </body>
 </html>
